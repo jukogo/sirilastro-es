@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Astro Starter Kit: Basics
 
 ```sh
@@ -44,3 +45,7 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+=======
+# sirilastro-es
+Traducción al español de sirilastro de Sathvik Acharya
+>>>>>>> 04eac5f180964ee650ae8bb0fcf0b79bc7d745d4

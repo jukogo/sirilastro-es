@@ -1,11 +1,749 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const title = "Tutorial de Siril: apilado y procesado de imágenes en astrofotografía";
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: 'Nunito', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol", "Noto Color Emoji";
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+      }
+      .container {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 2rem;
+        display: flex;
+      }
+      .left-menu {
+        width: 650px;
+        margin-right: 2rem;
+        padding-top: 1rem;
+        position: sticky;
+        top: 2rem;
+        height: calc(100vh - 4rem);
+        overflow-y: auto;
+        border-right: 1px solid #444444;
+      }
+      .left-menu h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #444444;
+      }
+      .left-menu ul {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+      }
+      .left-menu ul li {
+        font-size: 1rem;
+        color: #e0e0e0;
+        line-height: 1.75;
+        margin-bottom: 0.75rem;
+      }
+      .left-menu ul li a {
+        color: #aaaaaa;
+        text-decoration: none;
+        font-weight: 500;
+        display: block;
+        padding: 0.25rem 0;
+      }
+      .left-menu ul li a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+      }
+      .content-wrapper {
+        flex: 1;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+      .header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 1rem;
+      }
+      .header p {
+        font-size: 1.25rem;
+        color: #cccccc;
+        margin-bottom: 2rem;
+      }
+      .section {
+        margin-bottom: 1.5rem;
+      }
+      .section h2 {
+        font-size: 2.25rem;
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #444444;
+        padding-bottom: 0.75rem;
+        scroll-margin-top: 2rem;
+      }
+      .section h3 {
+        font-size: 1.75rem;
+        font-weight: 500;
+        color: #ffffff;
+        margin-bottom: 1.25rem;
+        scroll-margin-top: 2rem;
+      }
+      .section p {
+        font-size: 1.1rem;
+        color: #e0e0e0;
+        line-height: 1.75;
+        margin-bottom: 1rem;
+      }
+      .section ul {
+        list-style: disc;
+        padding-left: 2.5rem;
+        margin-bottom: 1rem;
+      }
+      .section ul li {
+        font-size: 1.1rem;
+        color: #e0e0e0;
+        line-height: 1.75;
+        margin-bottom: 0.75rem;
+      }
+      .section img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 6px 8px -3px rgba(0, 0, 0, 0.3), 0 3px 6px -2px rgba(0, 0, 0, 0.2);
+        border: 1px solid #444444;
+      }
+      .section-separator {
+        border: none;
+        border-top: 1px solid #444444;
+        margin: 4rem 0;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #444444;
+        color: #cccccc;
+      }
+      .footer a {
+        color: #aaaaaa;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .footer a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+      }
+      .social-icons a {
+        font-size: 1.5rem;
+        margin: 0 0.75rem;
+        color: #aaaaaa;
+        transition: color 0.3s ease;
+      }
+      .social-icons a:hover {
+        color: #ffffff;
+      }
+      pre {
+        background-color: #0d0d0d;
+        color: #f0f0f0;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        overflow-x: auto;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        border: 1px solid #444444;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+      }
+      pre code {
+        padding: 0;
+        background-color: transparent;
+        color: inherit;
+        border-radius: 0;
+      }
+      .contact-info {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #444444;
+      }
+      .contact-info p {
+        margin-bottom: 1rem;
+      }
+      .contact-info a {
+        color: #aaaaaa;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .contact-info a:hover {
+        color: #ffffff;
+        text-decoration: underline;
+      }
+      blockquote {
+        margin: 1rem 0;
+        padding: 0rem 1rem;
+        background-color: #0d0d0d;
+        border-left: 4px solid #888888;
+        color: #e0e0e0;
+        font-style: italic;
+      }
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+          flex-direction: column;
+        }
+        .left-menu {
+          width: 100%;
+          margin-right: 0;
+          margin-bottom: 2rem;
+          position: relative;
+          top: 0;
+          height: auto;
+          border-right: none;
+          border-bottom: 1px solid #444444;
+          padding-bottom: 1rem;
+        }
+        .left-menu ul {
+		  display: block;         /* antes flex */
+          overflow-x: visible;    /* sin scroll horizontal */
+          padding-bottom: 0.5rem;
+          margin-bottom: 0;
+        }
+        .left-menu ul li {
+          margin-right: 0;
+          margin-bottom: 0.5rem;  /* espacio entre elementos */
+        }
+        .left-menu h2 {
+          display: block;         /* muestra el título también en móvil */
+        }
+        .content-wrapper {
+          flex: 1;
+        }
+        .header h1 {
+          font-size: 2.5rem;
+        }
+        .header p {
+          font-size: 1.1rem;
+        }
+        .section {
+          padding: 1.5rem;
+        }
+        .section h2 {
+          font-size: 1.75rem;
+        }
+        .section h3 {
+          font-size: 1.5rem;
+        }
+        .section p,
+        .section ul li {
+          font-size: 1rem;
+          line-height: 1.6;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="bg-black text-white">
+    <div class="container">
+      <div class="left-menu">
+        <h2>Tabla de contenidos</h2>
+        <ul>
+          <li><a href="#why-use-siril">Por qué usar Siril</a></li>
+          <li><a href="#installing-siril">Instalar Siril</a></li>
+          <li><a href="#prerequisites">Requisitos previos</a></li>
+          <li><a href="#practice-astrophotography">Practicar astrofotografía</a></li>
+          <li><a href="#image-calibration">Calibración de imágenes</a></li>
+          <li><a href="#launching-siril">Iniciar Siril</a></li>
+          <li><a href="#installing-scripts">Instalar scripts</a></li>
+          <li><a href="#stacking-images">Apilar imágenes</a></li>
+          <li><a href="#background-extraction">Extracción de fondo</a></li>
+          <li>
+            <a href="#photometric-color-calibration">Calibración fotométrica del color</a>
+          </li>
+          <li><a href="#remove-green-noise">Eliminar ruido verde</a></li>
+          <li><a href="#stretching-image">Estirar la imagen</a></li>
+          <li><a href="#applying-colors">Aplicar colores</a></li>
+          <li><a href="#conclusion">Conclusión</a></li>
+          <li><a href="#credits">Créditos</a></li>
+          <li><a href="#contact-me">Contacto</a></li>
+        </ul>
+      </div>
+
+      <div class="content-wrapper">
+         <header class="header">
+                <h1>Tutorial de Siril: apilado y procesado de imágenes en astrofotografía</h1>
+                <p><b>Por Sathvik Acharya</b></p>
+                <p>Una guía completa para apilar imágenes de astrofotografía usando Siril, un software potente y gratuito para el procesado de imágenes astronómicas.</p>
+            </header>
+
+            <hr class="section-separator">
+
+            <section class="section" style="text-align: center;">
+                <p style="font-size: 1.1rem; color: #e0e0e0; line-height: 1.75; margin-bottom: 1rem;">
+                    La astrofotografía nos permite capturar la belleza del cielo nocturno, pero debido a los largos tiempos de exposición y a las condiciones de poca luz, una sola imagen suele contener mucho ruido y pocos detalles. Para solucionarlo, los astrofotógrafos utilizan una técnica llamada apilado de imágenes. Al combinar múltiples imágenes de la misma escena, podemos mejorar la relación señal‑ruido y revelar más detalles celestes.
+                </p>
+                <p style="font-size: 1.1rem; color: #e0e0e0; line-height: 1.75; margin-bottom: 1rem;">
+                    En esta guía te acompañaré paso a paso en el proceso de apilar tus imágenes de astrofotografía usando Siril, un software potente y gratuito diseñado para el procesado de imágenes astronómicas.
+                </p>
+            </section>
+
+            <figure><center>
+                <p><img src="/images/46.png" alt="Imagen apilada de M31, la galaxia de Andrómeda" width="685" height="347"><br></p>
+                <figcaption><center>Imagen apilada de M31, la galaxia de Andrómeda.</center></figcaption>
+            </center></figure><br>
+
+            <section id="why-use-siril" class="section">
+                <h2>Por qué usar Siril</h2>
+                <p>
+                    Siril destaca como un software especializado para el apilado de imágenes de astrofotografía, ofreciendo una serie de herramientas potentes pensadas para el procesado astronómico de alta calidad. Sus funcionalidades clave incluyen herramientas de alineado y calibración muy precisas que corrigen desplazamientos y distorsiones debidos a la atmósfera y al sistema óptico, produciendo apilados nítidos y precisos.
+                </p>
+                <p>
+                    Los algoritmos de apilado de Siril reducen eficazmente el ruido —crítico en astrofotografía de cielo profundo— a la vez que preservan los detalles finos, lo que se traduce en imágenes claras y con buen contraste. Además, Siril proporciona extracción de fondo, calibración de color y corrección fotométrica del color, mejorando los tonos naturales de los objetos celestes.
+                </p>
+                <p>
+                    El software admite tanto flujos de trabajo automatizados como controles manuales, por lo que se adapta a usuarios principiantes y avanzados. Al ser una herramienta gratuita y de código abierto, Siril se actualiza de forma continua, lo que lo convierte en una opción robusta y accesible para cualquier aficionado a la astrofotografía.
+                </p>
+            </section>
+
+            <section id="installing-siril" class="section">
+                <h2>Instalar Siril</h2>
+                <p>Puedes descargar e instalar Siril directamente desde la web oficial: <a href="https://siril.org/" class="text-gray-400 hover:text-white">https://siril.org/</a></p>
+                <p><b>Estos son los pasos de instalación en distintas plataformas:</b></p>
+                <p><strong>Para Ubuntu/Debian</strong></p>
+                <blockquote>
+                    <p>sudo apt install siril</p>
+                </blockquote>
+                <p><strong>Para Fedora</strong></p>
+                <blockquote>
+                    <p>sudo dnf install siril</p>
+                </blockquote>
+                <p><strong>Para Arch Linux</strong></p>
+                <blockquote>
+                    <p>sudo pacman -S siril</p>
+                </blockquote>
+            </section>
+
+            <section id="prerequisites" class="section">
+                <h2>Requisitos previos</h2>
+                <p>
+                    Para realizar el apilado de imágenes necesitas un conjunto de múltiples tomas del mismo objeto o campo celeste. Asegúrate de que estas imágenes se han tomado en condiciones similares y con ajustes consistentes para obtener un resultado de apilado óptimo. Cuantas más imágenes tengas, mejor será el resultado final, ya que el apilado ayuda a reducir el ruido y a resaltar los detalles.
+                </p>
+            </section>
+
+            <section id="practice-astrophotography" class="section">
+                <h2>Practicar el apilado de imágenes de astrofotografía</h2>
+                <p>Puedes descargar imágenes de práctica para apilar astrofotografía desde las siguientes fuentes para adquirir experiencia práctica:</p>
+                <ul>
+                    <li><a href="https://www.astropix.com/" class="text-gray-400 hover:text-white">Astropix</a></li>
+                    <li><a href="https://www.astrobackyard.com/" class="text-gray-400 hover:text-white">AstroBackyard</a></li>
+                </ul>
+                <p>Estos recursos proporcionan conjuntos de datos excelentes para practicar tus técnicas de apilado y procesado de imágenes.</p>
+            </section>
+
+            <section id="image-calibration" class="section">
+                <h2>Calibración de imágenes</h2>
+                <p>Esta sección describe cómo organizar los archivos de imagen para apilarlos en Siril.</p>
+                <h3>Organizar tus archivos de imagen para el apilado en Siril</h3>
+                <p>Antes de comenzar a procesar tus imágenes de astrofotografía en Siril, es esencial organizar correctamente los archivos.</p>
+                <ol>
+                    <li>1. Empieza creando un directorio principal con el nombre del objeto o cúmulo estelar con el que estás trabajando (por ejemplo: <strong>M31</strong> – la galaxia de Andrómeda).</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/one.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="2">
+                    <li>2. Dentro de este directorio, crea cuatro subdirectorios: <code><strong>lights, darks, biases y flats</strong>.</code></li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/two.png" alt="" width="685" height="347"></p>
+                </center>
+                <ul>
+                    <li><code><strong>Lights:</strong></code> coloca todas tus imágenes en bruto del objeto (las que vas a apilar) en la carpeta <strong>lights</strong>.</li>
+                    <li><code><strong>Darks:</strong></code> coloca aquí tus dark frames para corregir el ruido del sensor.</li>
+                    <li><code><strong>Biases:</strong></code> añade tus bias frames en esta carpeta para corregir el ruido de lectura.</li>
+                    <li><code><strong>Flats:</strong></code> guarda aquí tus flat fields para corregir el viñeteo o el polvo en el sensor.</li>
+                </ul>
+                <ol start="3">
+                    <li>3. En este paso, colocaremos únicamente los archivos light (las imágenes en bruto) en la carpeta <strong>lights</strong>. En esta guía trabajaremos exclusivamente con estas imágenes light.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/three.png" alt="" width="685" height="347"></p>
+                </center>
+                <p><strong>Nota:</strong> estos directorios son cruciales porque los scripts integrados de Siril dependen de ellos para ejecutar el proceso de apilado. Si estos directorios no se crean correctamente o no contienen las imágenes correspondientes, los scripts no se ejecutarán y aparecerán errores. Siguiendo esta estructura, asegurarás un flujo de trabajo de apilado fluido.</p>
+            </section>
+
+            <section id="launching-siril" class="section">
+                <h2>Iniciar Siril</h2>
+                <h3>Configurar el espacio de trabajo</h3>
+                <p>
+                    De forma predeterminada, Siril puede abrirse con un directorio de trabajo distinto de aquel donde tienes tus imágenes. Para asegurarte de que Siril puede acceder a tus archivos y realizar el apilado correctamente, sigue estos pasos para cambiar el directorio de trabajo:
+                </p>
+                <ol>
+                    <li>1. Abre Siril: inicia Siril en tu ordenador.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/four.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="2">
+                    <li>2. Para cambiar el directorio actual en Siril, haz clic en el icono de casa situado en la esquina superior izquierda de la ventana.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/five~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="3">
+                    <li>3. Esta acción abrirá un explorador de archivos, que te permitirá navegar y seleccionar el directorio donde se encuentran tus imágenes.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/seven~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="4">
+                    <li>4. Después de navegar hasta el directorio que contiene las carpetas <strong>lights</strong>, <strong>darks</strong>, <strong>flats</strong> y <strong>biases</strong>, haz clic en <strong>Open</strong> para establecerlo como directorio de trabajo en Siril.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/eight~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <p>Ahora Siril está preparado para trabajar con las imágenes del directorio especificado. Puedes verificarlo comprobando la esquina superior izquierda de la ventana de Siril, donde se muestra el directorio de trabajo actual.</p>
+            </section>
+
+            <section id="installing-scripts" class="section">
+                <h2>Instalar scripts</h2>
+                <ol>
+                    <li>1. Para instalar scripts, haz clic en el icono de <strong>tres rayas</strong> situado en la esquina superior derecha de la ventana de Siril.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/nine~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="2">
+                    <li>2. Haz clic en <strong>Get Scripts</strong>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/ten~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="3">
+                    <li>3. Tras hacer clic en Get Scripts, serás redirigido a la página de documentación de Siril. Desde ahí, localiza el enlace a <a href="https://gitlab.com/free-astro/siril-scripts" class="text-gray-400 hover:text-white">GitLab</a> en la sección <strong>Getting More Scripts</strong> y haz clic en él.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/111.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="4">
+                    <li>4. Haz clic en <strong>preprocessing</strong>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/122.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="5">
+                    <li>5. Haz clic en <strong>OSC_Preprocessing_WithoutDBF.ssf</strong>.</li>
+                </ol><br>
+                <p><strong>Nota:</strong> descargaremos el script <strong>OSC_Preprocessing_WithoutDBF.ssf</strong>, ya que en esta guía trabajamos exclusivamente con imágenes light.</p>
+                <center>
+                    <p><img src="/images/13.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="6">
+                    <li>6. Descarga el archivo <strong>OSC_Preprocessing_WithoutDBF.ssf</strong>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/144.png" alt="" width="685" height="347"></p>
+                </center>
+                <p>Después de descargar el script, colócalo en el siguiente directorio:</p>
+                <blockquote>
+                    <p>/Este equipo/Disco local (C:)/Program Files/Siril/scripts/OSC_Preprocessing_WithoutDBF.ssf</p>
+                </blockquote>
+                <p>Una vez que los scripts están instalados y en el directorio correcto, ya estás listo para comenzar el proceso de apilado en Siril.</p>
+            </section>
+
+            <section id="stacking-images" class="section">
+                <h2>Apilar imágenes</h2>
+                <ol>
+                    <li>1. Haz clic en <strong>Scripts</strong> en el menú superior.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/15~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="2">
+                    <li>2. Selecciona <strong>OSC_Preprocessing_WithoutDBF</strong> de la lista de scripts disponibles.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/16~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="3">
+                    <li>3. Haz clic en <strong>Run</strong> para ejecutar el script.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/17~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="4">
+                    <li>4. Espera a que el script termine. Puedes ver el progreso de la ejecución en la ventana de <strong>consola</strong>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/18~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <p>La imagen final apilada se guardará en el directorio principal llamado <strong>M31</strong>.</p>
+                <ol start="5">
+                    <li>5. Para abrir la imagen apilada final, haz clic en <strong>Open</strong> en el menú superior.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/19~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="6">
+                    <p>La imagen final apilada se llamará <strong>result.fit</strong> y se guardará en formato FITS.</p>
+                    <li>6. Selecciona <strong>result.fit</strong> y haz clic en <strong>Open</strong> en la parte inferior para cargar la imagen.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/20~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="7">
+                    <li>7. Esta es la imagen apilada en bruto de M31 mostrada en vista lineal.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/21~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="8">
+                    <li>8. Para cambiar de Linear a Autostretch, simplemente haz clic en <strong>Linear</strong> y selecciona <strong>Autostretch</strong> para ajustar la vista de la imagen.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/22~2.png" alt="" width="685" height="347"></p>
+                    <p><img src="/images/23~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <p><strong>Nota:</strong> Autostretch aplica un estirado temporal a los datos de la imagen, haciendo que los detalles débiles sean más visibles sin alterar permanentemente los datos en bruto. Es útil para previsualizar la imagen apilada antes de realizar más procesado.</p>
+                <center>
+                    <p><img src="/images/24~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <p><strong>Nota:</strong> después de aplicar Autostretch a la imagen apilada, puedes notar ruido verde. Es algo habitual y se puede corregir en etapas posteriores del procesado.</p>
+                <ol start="9">
+                    <li>9. Para cambiar a la vista de Histograma, selecciona <strong>Histogram</strong> entre las opciones de visualización. Cambiar a la vista de histograma te proporciona un control más fino sobre el rango tonal de la imagen, permitiendo una mejor visualización de los detalles y ajustes de exposición.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/26~2.png" alt="" width="685" height="347"></p>
+                </center>
+                <p>En la vista de Histograma puedes ver la distribución de valores de píxel de la imagen. Esta vista es útil para ajustar niveles de brillo y contraste.</p>
+            </section>
+
+            <section id="background-extraction" class="section">
+                <h2>Extracción de fondo</h2>
+                <p>La extracción de fondo es un paso crucial en el procesado de imágenes de astrofotografía. Ayuda a eliminar ruido de fondo o variaciones no deseadas de tus imágenes, permitiendo que los objetos celestes destaquen con mayor claridad. En esta sección veremos los pasos para realizar la extracción de fondo en Siril.</p>
+                <p>Para comenzar el posprocesado, primero recorta los artefactos y el ruido de los bordes, visibles en la vista de Histograma.</p>
+                <ol>
+                    <li>1. Para recortar, haz clic con el botón izquierdo en la imagen, selecciona el área que quieres conservar y luego haz clic derecho y elige <strong>Crop</strong> para aplicar los cambios.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/27~3.png" alt="" width="685" height="347"></p>
+                </center>
+                <p>Tras el recorte, vuelve a la vista Autostretch para mejorar la visibilidad y luego inicia el proceso de extracción de fondo.</p>
+                <ol start="2">
+                    <li>2. Ve a <strong>Image Processing</strong>.</li>
+                </ol><br>
+                <p>La extracción de fondo en Siril es un proceso que ayuda a eliminar el ruido de fondo o variaciones no deseadas de tus imágenes astronómicas.</p>
+                <center><p><img src="/images/28.png" width="685" height="347" alt=""></p></center>
+                <ol start="3">
+                    <li>3. Selecciona <strong>Background Extraction</strong>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/29.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="4">
+                    <li>4. Genera las muestras (samples).</li>
+                </ol>
+                <center>
+                    <p><img src="/images/33.png" alt="" width="685" height="347"></p>
+                </center>
+                <p><strong>Nota:</strong> Siril utiliza estas muestras para estimar la intensidad del fondo y los gradientes causados por factores como la contaminación lumínica o el ruido del sensor. Tras seleccionar las muestras, Siril restará el modelo de fondo estimado de tu imagen, creando un fondo más limpio y uniforme.</p>
+                <ol start="5">
+                    <li>5. Para asegurar una extracción de fondo precisa, haz clic derecho sobre cualquier muestra que esté demasiado cerca de estrellas brillantes u otros objetos celestes para eliminarla. Esto ayuda a evitar interferencias de los objetos y garantiza que solo se modele el fondo.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/30.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="6">
+                    <li>6. Haz clic en <strong>Compute Background</strong> para finalizar el proceso y luego en <strong>Apply</strong>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/31.png" alt="" width="685" height="347"></p>
+                </center>
+                <p>Tras aplicar la extracción de fondo notarás una mejora significativa en la calidad de la imagen. El ruido y las variaciones del fondo se habrán reducido, permitiendo que los objetos celestes destaquen con mayor claridad.</p>
+            </section>
+
+            <section id="photometric-color-calibration" class="section">
+                <h2>Calibración fotométrica del color</h2>
+                <p>La calibración fotométrica del color es esencial en el apilado de imágenes de astrofotografía para corregir desequilibrios de color causados por factores como la contaminación lumínica, las características del sensor y las diferentes condiciones de exposición. En Siril, este proceso ajusta los colores de las imágenes apiladas para que coincidan con los colores reales de los objetos celestes, garantizando resultados precisos y de aspecto natural.</p>
+                <p>Siril lo consigue analizando el color de las estrellas y otros objetos en la imagen y ajustando los canales rojo, verde y azul para eliminar dominantes de color no deseadas. Esta calibración es vital para crear imágenes científicamente correctas y visualmente consistentes, especialmente al apilar múltiples tomas con distintos sesgos de color.</p>
+                <ol>
+                    <li>1. Para realizar la calibración fotométrica del color, haz clic en <strong>Color Calibration</strong>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/50.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="2">
+                    <li>2. Selecciona <strong>Photometric Color Calibration</strong>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/51.png" width="685" height="347" alt=""></p>
+                </center>
+                <p>Se abrirá una ventana en la que deberás introducir el número de catálogo para hacer coincidir las coordenadas de ascensión recta (RA) y declinación (Dec). Si utilizas un telescopio, las coordenadas se mostrarán automáticamente. Si disparas con una DSLR, los valores de coordenadas aparecerán a cero por defecto.</p>
+                <p>Para calibrar las imágenes de M31 (la galaxia de Andrómeda), el número de catálogo es <strong>NGC 224</strong>.</p>
+                <center>
+                    <p><img src="/images/52.png" alt="" width="685" height="347"></p>
+                </center>
+                <p>Puedes elegir entre varios catálogos, como <strong>VizieR</strong>, <strong>SIMBAD</strong> o <strong>CDS</strong>, para hacer coincidir las coordenadas con la entrada de catálogo adecuada.</p>
+                <p>Añade la distancia focal y el tamaño de píxel de tu telescopio para mejorar la precisión de la calibración. Estos valores ayudan a refinar la corrección fotométrica en función de tu equipo.</p>
+                <p>Una vez introducida toda la información necesaria, haz clic en <strong>OK</strong>.</p>
+            </section>
+
+            <section id="remove-green-noise" class="section">
+                <h2>Eliminar ruido verde</h2>
+                <p>El ruido verde es un problema habitual en imágenes de astrofotografía, especialmente al usar ciertas cámaras o sensores. Aparece como un tinte o dominante verdosa en la imagen que puede perjudicar la calidad y la fidelidad del resultado final. Eliminar el ruido verde es esencial para conseguir una imagen más equilibrada y de aspecto natural.</p>
+                <ol>
+                    <li>1. Si persiste ruido verde en la imagen, haz clic en <strong>Remove green noise</strong> para eliminarlo.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/34.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="2">
+                    <li>2. Deja las opciones por defecto sin cambios y simplemente haz clic en <strong>Apply</strong>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/35.png" alt="" width="685" height="347"></p>
+                </center>
+                <center>
+                    <p><img src="/images/36.png" width="685" height="347" alt=""></p>
+                </center>
+                <center><p>Imagen más limpia y equilibrada tras eliminar el ruido verde.</p></center>
+            </section>
+
+            <section id="stretching-image" class="section">
+                <h2>Estirar la imagen</h2>
+                <p>Estirar la imagen es un paso crucial en el procesado de astrofotografía. Mejora la visibilidad de los detalles y colores tenues en la imagen apilada, haciendo que el resultado final sea más atractivo visualmente. En esta sección veremos los pasos para estirar la imagen de forma eficaz.</p>
+                <ol>
+                    <li>1. Cambia la vista a <strong>Linear View</strong> y haz clic en <strong>Histogram Transformation</strong> para estirar la imagen.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/40.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="2">
+                    <li>2. Aplica el algoritmo de autostretch haciendo clic en el icono situado encima de <code>clip%</code>.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/41.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="3">
+                    <li>3. Selecciona <strong>Asinh transformation</strong>. Este ajuste realzará los detalles de tu imagen.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/37.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="4">
+                    <li>4. Ajusta el <strong>Stretch Factor</strong> a un valor alto para potenciar el contraste y los detalles de la imagen.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/38.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="5">
+                    <li>5. Haz clic en <strong>Apply</strong> para aplicar los cambios.</li>
+                </ol>
+            </section>
+
+            <section id="applying-colors" class="section">
+                <h2>Aplicar colores</h2>
+                <ol>
+                    <li>1. Haz clic en la opción <strong>Color Saturation</strong> para aumentar la viveza de los colores de tu imagen.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/42.png" alt="" width="685" height="347"></p>
+                </center>
+                <ol start="2">
+                    <li>2. Elige <strong>Global</strong> para acceder a una variedad de opciones de color.</li><br>
+                    <li>3. Tras seleccionar las opciones de color deseadas, aumenta la saturación ajustando el control <strong>amount</strong>. Haz clic en <strong>Apply</strong> para aplicar los cambios y potenciar la viveza de la imagen.</li>
+                </ol><br>
+                <center>
+                    <p><img src="/images/43.png" alt="" width="685" height="347"></p>
+                </center>
+                <center>
+                    <p><img src="/images/46.png" alt="" width="685" height="347"></p>
+                </center>
+                <center>
+                    <p>Este es el resultado de la imagen apilada final. Siempre puedes refinarla y mejorarla más usando otros programas de edición fotográfica para realizar ajustes adicionales.</p>
+                </center>
+                <p>4. Haz clic en la opción <strong>Save</strong> o <strong>Download</strong> en la esquina superior derecha para guardar la imagen final.</p>
+                <center><p><img src="/images/47.png" alt="" width="685" height="347"></p></center>
+                <p>5. Al guardar la imagen, puedes elegir entre distintos formatos de archivo según tus necesidades.</p>
+                <center><p><img src="/images/49.png" alt="" width="685" height="347"></p></center>
+                <p>6. Haz clic en <strong>Save</strong> para descargar la imagen final.</p>
+            </section>
+
+            <section id="conclusion" class="section">
+                <h2>Conclusión</h2>
+                <p>
+                    En conjunto, Siril es una herramienta increíblemente potente para astrofotógrafos, con un abanico de funciones que facilita tareas complejas como el apilado y la calibración de imágenes. Su compatibilidad con la automatización mediante múltiples scripts es una característica destacada, ya que ahorra tiempo y esfuerzo, especialmente al gestionar grandes volúmenes de imágenes. Sin embargo, para conseguir los mejores resultados necesitarás algo de paciencia y práctica hasta dominar el flujo de trabajo.
+                </p>
+                <p>
+                    Es importante señalar que esta guía está pensada para principiantes que usan telescopios para astrofotografía y no cubre técnicas más avanzadas como transformaciones de estirado hiperbólico generalizadas, deconvolución, reducción de ruido o herramientas avanzadas de tratamiento de estrellas como StarNet.
+                </p>
+                <p>
+                    Si quieres profundizar en estos temas, te recomiendo encarecidamente visitar <a href="https://www.youtube.com/@DeepSpaceAstro" class="text-gray-400 hover:text-white">Deep Space Astro</a> en YouTube, donde encontrarás tutoriales completos sobre técnicas avanzadas de procesado de imagen.
+                </p>
+            </section>
+
+            <section id="credits" class="section">
+                <h2>Créditos</h2>
+                <p>
+                    Las imágenes utilizadas en esta guía sobre apilado de imágenes en Siril se han obtenido de <a href="https://www.astropix.com/" class="text-gray-400 hover:text-white">Astropix</a> y <a href="https://www.astrobackyard.com/" class="text-gray-400 hover:text-white">AstroBackyard</a>. Agradezco enormemente su valiosa contribución a este proyecto al proporcionar recursos de astrofotografía de alta calidad.
+                </p>
+                <p>Para más detalles, visita <a href="https://www.astropix.com/" class="text-gray-400 hover:text-white">Astropix</a> y <a href="https://www.astrobackbackyard.com/" class="text-gray-400 hover:text-white">AstroBackyard</a>.</p>
+            </section>
+
+            <footer id="contact-me" class="footer">
+                <h1>Contacto</h1>
+                <p>Si tienes cualquier pregunta o quieres ponerte en contacto conmigo, no dudes en escribirme:</p>
+                <p>Email: <a href="mailto:sathvikacharyaa@gmail.com" class="text-gray-400 hover:text-white">sathvikacharyaa@gmail.com</a></p>
+                <p>También puedes contactar conmigo en redes sociales:</p>
+                <div class="social-icons flex justify-center mt-4">
+                    <a href="mailto:sathvikacharyaa@gmail.com" target="_blank" aria-label="Gmail"><i class="fas fa-envelope"></i></a>
+                    <a href="https://twitter.com/sathvikacharyaa" target="_blank" aria-label="Twitter/X"><i class="fab fa-twitter"></i></a>
+                    <a href="https://linkedin.com/in/sathvikacharya" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://github.com/sathvikacharyaa" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                </div>
+                <div class="contact-info">
+                </div>
+                <p>© 2024 Sathvik Acharya. Todos los derechos reservados.</p>
+            </footer>
+      </div>
+    </div>
+
+    <script>
+      document.querySelectorAll('.left-menu a').forEach((anchor) => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href').substring(1);
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: 'smooth',
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
